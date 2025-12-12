@@ -22,17 +22,26 @@ export const generatePanelImage = async (
   // The documentation says 'orientation' parameter is supported: 'landscape' | 'portrait'
   
   try {
+    const requestBody = {
+      model: 'lucy-pro-t2i',
+      prompt: fullPrompt,
+      resolution: '720p',
+      orientation: orientation,
+    };
+
+    console.log('Decart API Request:', {
+      endpoint: API_ENDPOINT,
+      hasApiKey: !!apiKey,
+      body: requestBody,
+    });
+
     const response = await fetch(API_ENDPOINT, {
       method: 'POST',
       headers: {
-        'x-api-key': apiKey,
+        'X-API-KEY': apiKey,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        prompt: fullPrompt,
-        resolution: '720p',
-        orientation: orientation,
-      }),
+      body: JSON.stringify(requestBody),
     });
 
     if (!response.ok) {
