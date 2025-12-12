@@ -135,6 +135,8 @@ const App: React.FC = () => {
       fullPrompt += ` The image must include a clearly visible speech bubble containing the text: "${bubbleText}".`;
     }
 
+    console.log('Generating panel with:', { apiKey: apiKey ? '***set***' : '***missing***', promptLength: fullPrompt.length, orientation });
+
     try {
       const imageUrl = await generatePanelImage(apiKey, fullPrompt, orientation);
 
