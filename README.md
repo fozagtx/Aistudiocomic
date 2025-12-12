@@ -15,6 +15,11 @@ View your app in AI Studio: https://ai.studio/apps/drive/1RLgHqSXzB7ykr0_hgEfv56
 
 1. Install dependencies:
    `npm install`
-2. Set the `VITE_DECART_API_KEY` in [.env.local](.env.local) to your Decart API key
+2. Set the `VITE_DECART_API_KEY` in [.env.local](.env.local) to your **base64 encoded** Decart API key:
+   ```bash
+   # Encode your API key (run in terminal):
+   echo -n "your-actual-api-key" | base64
+   # Then paste the output as the value in .env.local or Vercel
+   ```
 3. Run the app:
    `npm run dev`
