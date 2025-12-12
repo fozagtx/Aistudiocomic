@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import 'reactflow/dist/style.css';
+
+body {
+  background-color: #0F0F12;
+  color: #FFFFFF;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0F0F12;
+}
+::-webkit-scrollbar-thumb {
+  background: #252630;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #00E5FF;
+}
+
+/* React Flow Customization */
+.react-flow__edge-path {
+  stroke: #00E5FF !important;
+  stroke-width: 2px !important;
+  filter: drop-shadow(0 0 4px rgba(0,229,255,0.5));
+}
+.react-flow__node {
+  border-radius: 0 !important;
+}
