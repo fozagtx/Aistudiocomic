@@ -1,54 +1,41 @@
+import { createDecartClient, models } from "@decartai/sdk";
 import { Orientation } from '../types';
 
-const API_ENDPOINT = 'https://api.decart.ai/v1/generate/lucy-pro-t2i';
 const API_KEY = 'comic-2_zqsavxzUnoDAxNIyEBzpIIiehKhJBIylsBumvIBbnwYgnGvFCWTAnUycbYuutemi';
 
+const client = createDecartClient({
+  apiKey: API_KEY
+});
+
 /**
- * Generates an image using the Decart API (Lucy Pro T2I Model).
+ * Generates an image using the Decart SDK (Lucy Pro T2I Model).
  */
 export const generatePanelImage = async (
-  _apiKey: string, // Kept for compatibility, using hardcoded key
+  _apiKey: string,
   fullPrompt: string,
   orientation: Orientation
 ): Promise<string> => {
 
   try {
-    const requestBody = {
+    console.log('Decart SDK Request:', { prompt: fullPrompt, orientation });
+
+    const result = await client.process({
+      model: models.image("lucy-pro-t2i"),
       prompt: fullPrompt,
-      resolution: '720p',
-      orientation: orientation,
-    };
-
-    console.log('Decart API Request:', {
-      endpoint: API_ENDPOINT,
-      body: requestBody,
     });
 
-    const response = await fetch(API_ENDPOINT, {
-      method: 'POST',
-      headers: {
-        'X-API-KEY': API_KEY,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(requestBody),
-    });
+    console.log('Decart SDK Response:', result);
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Decart API Error: ${response.status} ${response.statusText} - ${errorText}`);
+    // Return the image URL from the result
+    if (result && result.url) {
+      return result.url;
     }
 
-    const contentType = response.headers.get('content-type');
-
-    if (contentType && contentType.includes('application/json')) {
-      const data = await response.json();
-      if (data.url) return data.url;
-      if (data.image) return `data:image/png;base64,${data.image}`;
-      throw new Error("Unexpected JSON format from API");
-    } else {
-      const blob = await response.blob();
-      return URL.createObjectURL(blob);
+    if (result && result.image) {
+      return `data:image/png;base64,${result.image}`;
     }
+
+    throw new Error("No image URL in response");
 
   } catch (error) {
     console.error('Generation failed:', error);
