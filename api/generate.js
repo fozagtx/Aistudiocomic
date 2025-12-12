@@ -1,13 +1,7 @@
-import { createDecartClient, models } from "@decartai/sdk";
-
 const API_KEY = 'comic-2_zqsavxzUnoDAxNIyEBzpIIiehKhJBIylsBumvIBbnwYgnGvFCWTAnUycbYuutemi';
-
-const client = createDecartClient({
-  apiKey: API_KEY
-});
+const API_URL = 'https://api.decart.ai/v1/generate/lucy-pro-t2i';
 
 export default async function handler(req, res) {
-  // Enable CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -21,33 +15,54 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { prompt, orientation } = req.body;
+    const { prompt, orientation = 'landscape' } = req.body;
 
     if (!prompt) {
       return res.status(400).json({ error: 'Prompt is required' });
     }
 
-    console.log('Generating image with prompt:', prompt);
+    console.log('Calling Decart API with prompt:', prompt.substring(0, 100));
 
-    const result = await client.process({
-      model: models.image("lucy-pro-t2i"),
-      prompt: prompt,
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'X-API-KEY': API_KEY,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        prompt: prompt,
+        resolution: '720p',
+        orientation: orientation,
+      }),
     });
 
-    console.log('Decart result:', result);
-
-    if (result && result.url) {
-      return res.status(200).json({ url: result.url });
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Decart API error:', response.status, errorText);
+      return res.status(response.status).json({ error: `Decart API: ${errorText}` });
     }
 
-    if (result && result.image) {
-      return res.status(200).json({ url: `data:image/png;base64,${result.image}` });
-    }
+    const contentType = response.headers.get('content-type');
 
-    return res.status(500).json({ error: 'No image in response' });
+    if (contentType && contentType.includes('application/json')) {
+      const data = await response.json();
+      if (data.url) {
+        return res.status(200).json({ url: data.url });
+      }
+      if (data.image) {
+        return res.status(200).json({ url: `data:image/png;base64,${data.image}` });
+      }
+      return res.status(500).json({ error: 'No image URL in response' });
+    } else {
+      // Return image as base64
+      const buffer = await response.arrayBuffer();
+      const base64 = Buffer.from(buffer).toString('base64');
+      const mimeType = contentType || 'image/png';
+      return res.status(200).json({ url: `data:${mimeType};base64,${base64}` });
+    }
 
   } catch (error) {
-    console.error('Decart API error:', error);
-    return res.status(500).json({ error: error.message || 'Failed to generate image' });
+    console.error('Server error:', error);
+    return res.status(500).json({ error: error.message || 'Server error' });
   }
 }
