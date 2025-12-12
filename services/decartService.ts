@@ -23,6 +23,7 @@ export const generatePanelImage = async (
   
   try {
     const requestBody = {
+      model: 'lucy-pro-t2i',
       prompt: fullPrompt,
       resolution: '720p',
       orientation: orientation,
@@ -37,7 +38,7 @@ export const generatePanelImage = async (
     const response = await fetch(API_ENDPOINT, {
       method: 'POST',
       headers: {
-        'x-api-key': apiKey,
+        'X-API-KEY': apiKey,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(requestBody),
