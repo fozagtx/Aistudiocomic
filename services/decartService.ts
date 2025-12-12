@@ -1,14 +1,7 @@
-import { createDecartClient, models } from "@decartai/sdk";
 import { Orientation } from '../types';
 
-const API_KEY = 'comic-2_zqsavxzUnoDAxNIyEBzpIIiehKhJBIylsBumvIBbnwYgnGvFCWTAnUycbYuutemi';
-
-const client = createDecartClient({
-  apiKey: API_KEY
-});
-
 /**
- * Generates an image using the Decart SDK (Lucy Pro T2I Model).
+ * Generates an image using our serverless API that calls Decart.
  */
 export const generatePanelImage = async (
   _apiKey: string,
@@ -17,25 +10,30 @@ export const generatePanelImage = async (
 ): Promise<string> => {
 
   try {
-    console.log('Decart SDK Request:', { prompt: fullPrompt, orientation });
+    console.log('Calling generate API:', { prompt: fullPrompt, orientation });
 
-    const result = await client.process({
-      model: models.image("lucy-pro-t2i"),
-      prompt: fullPrompt,
+    const response = await fetch('/api/generate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        prompt: fullPrompt,
+        orientation: orientation,
+      }),
     });
 
-    console.log('Decart SDK Response:', result);
+    const data = await response.json();
 
-    // Return the image URL from the result
-    if (result && result.url) {
-      return result.url;
+    if (!response.ok) {
+      throw new Error(data.error || 'Failed to generate image');
     }
 
-    if (result && result.image) {
-      return `data:image/png;base64,${result.image}`;
+    if (data.url) {
+      return data.url;
     }
 
-    throw new Error("No image URL in response");
+    throw new Error('No image URL in response');
 
   } catch (error) {
     console.error('Generation failed:', error);
