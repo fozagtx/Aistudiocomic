@@ -161,7 +161,7 @@ const App: React.FC = () => {
       // Remove the failed node or mark error (here we remove for simplicity)
       setNodes((nds) => nds.filter(n => n.id !== tempId));
       setEdges((eds) => eds.filter(e => e.target !== tempId));
-      alert("Failed to generate panel.");
+      alert(`Image generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsGenerating(false);
     }
