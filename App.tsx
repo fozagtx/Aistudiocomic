@@ -66,15 +66,17 @@ const App: React.FC = () => {
     [setEdges]
   );
 
-  // Safely retrieve Decart API Key (base64 encoded to bypass Vercel validation)
+  // Get Decart API Key (base64 encoded to bypass Vercel validation)
   const getApiKey = (): string => {
     try {
-      if (typeof process !== 'undefined' && process.env?.DECART_API_KEY) {
+      // Use Vite's import.meta.env for environment variables
+      const encodedKey = import.meta.env.VITE_DECART_API_KEY;
+      if (encodedKey) {
         // Decode base64 encoded API key
-        return atob(process.env.DECART_API_KEY);
+        return atob(encodedKey);
       }
     } catch (e) {
-      // ignore
+      console.error('Failed to decode API key:', e);
     }
     return '';
   };
