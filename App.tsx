@@ -66,16 +66,16 @@ const App: React.FC = () => {
     [setEdges]
   );
 
-  // Safely retrieve API Key
-  const getApiKey = () => {
+  // Safely retrieve Decart API Key
+  const getApiKey = (): string => {
     try {
-      if (typeof process !== 'undefined' && process.env?.API_KEY) {
-        return process.env.API_KEY;
+      if (typeof process !== 'undefined' && process.env?.DECART_API_KEY) {
+        return process.env.DECART_API_KEY;
       }
     } catch (e) {
       // ignore
     }
-    return 'comic-2_zqsavxzUnoDAxNIyEBzpIIiehKhJBIylsBumvIBbnwYgnGvFCWTAnUycbYuutemi';
+    return '';
   };
 
   const apiKey = getApiKey();
